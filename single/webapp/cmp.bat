@@ -1,0 +1,1 @@
+g++ -static %1.cpp -o %1.exe -I ..\web\include -L ..\web\lib -l webearl -lws2_32

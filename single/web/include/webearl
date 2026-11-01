@@ -1,0 +1,18 @@
+#ifndef __WEBEARL__
+#define __WEBEARL__
+namespace webe
+{
+class WebProjector
+{
+private:
+int portNumber;
+char *url;
+void (*ptrOnRequest)(void);
+public:
+WebProjector(int portNumber);
+~WebProjector();
+void start();
+void onRequest(const char *,void (*ptrOnRequest)(void));
+};
+}
+#endif
