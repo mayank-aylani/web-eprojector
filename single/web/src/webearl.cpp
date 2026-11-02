@@ -10,6 +10,8 @@ char *method;  //get or post
 char *resource;
 char isClientSideTechnologyResource;
 char *mimeType;
+int dataCount;
+char **data;
 }REQUEST;
 
 //constructor

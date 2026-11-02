@@ -7,12 +7,14 @@ class WebProjector
 private:
 int portNumber;
 char *url;
-void (*ptrOnRequest)(void);
+//void (*ptrOnRequest)(void);  //Increment-1
+void (*ptrOnRequest)(int,char *[]);  //Increment-2
 public:
 WebProjector(int portNumber);
 ~WebProjector();
 void start();
-void onRequest(const char *,void (*ptrOnRequest)(void));
+//void onRequest(const char *,void (*ptrOnRequest)(void));  //Increment-1
+void onRequest(const char *url,void (*ptrOnRequest)(int,char *[]));  //Increment-2
 };
 }
 #endif
