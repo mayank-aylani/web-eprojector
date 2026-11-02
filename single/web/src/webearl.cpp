@@ -14,7 +14,23 @@ int dataCount;
 char **data;
 }REQUEST;
 
-//constructor
+//Response class constructor
+Response::Response(int clientSocketDescriptor)
+{
+this->clientSocketDescriptor=clientSocketDescriptor;
+this->isClosed=false;
+this->headerCreated=false;	
+}
+
+void Response::createHeader()
+{
+char header[51];
+strcpy(header,"HTTP/1.1 200 OK\nContent-Type:text/html\n\n");
+send(clientSocketDescriptor,header,strlen(header),0);
+this->headerCreated=true;
+}
+
+//WebProjector class constructor
 WebProjector::WebProjector(int portNumber)
 {
 this->portNumber=portNumber;
@@ -28,15 +44,10 @@ WebProjector::~WebProjector()
 if(this->url) delete [] this->url;
 }
  
-void WebProjector::onRequest(const char *url,void (*ptrOnRequest)(void))
+void TMWebProjector::onRequest(string url,void (*ptrOnRequest)(Request &,Response &))
 {
-if(this->url) delete [] this->url;
-this->url=NULL;
-this->ptrOnRequest=NULL;
-if(url==NULL || ptrOnRequest==NULL) return;
-this->url=new char[strlen(url)+1];
-strcpy(this->url,url);
-this->ptrOnRequest=ptrOnRequest;
+if(url.length()==0 || ptrOnRequest==NULL) return;
+requestMappings.insert(pair<string,void (*)(Request &,Response &)>(url,ptrOnRequest));
 }
 
 int extensionEquals(const char *left,const char *right)

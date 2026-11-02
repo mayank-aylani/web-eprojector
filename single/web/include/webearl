@@ -2,19 +2,56 @@
 #define __WEBEARL__
 namespace webe
 {
+class Request
+{
+public:
+char *method;
+char *resource;
+char isClientSideTechnologyResource;
+char *mimeType;
+int dataCount;
+char **data;
+string forwardTo;
+map<string,string> keyValues;
+void setKeyValue(string k,string v);
+string getValue(string k);
+string get(string name);
+void forward(string forwardTo);
+};
+class Response
+{
+private:
+int clientSocketDescriptor;
+int isClosed;
+bool headerCreated;
+void createHeader();
+public:
+Response(int clientSocketDescriptor);
+void write(const char *str);
+void write(string str);
+//overload more operators for primitive types
+void close();
+};
+
+
+
+
 class WebProjector
 {
 private:
 int portNumber;
 char *url;
 //void (*ptrOnRequest)(void);  //Increment-1
-void (*ptrOnRequest)(int,char *[]);  //Increment-2
+//void (*ptrOnRequest)(int,char *[]);  //Increment-2
+void (*ptrOnRequest)(Request &,Response &);  //Increment-3
+map<string,void (*)(Request &,Response &)> requestMappings;
 public:
 WebProjector(int portNumber);
 ~WebProjector();
 void start();
 //void onRequest(const char *,void (*ptrOnRequest)(void));  //Increment-1
-void onRequest(const char *url,void (*ptrOnRequest)(int,char *[]));  //Increment-2
+//void onRequest(const char *url,void (*ptrOnRequest)(int,char *[]));  //Increment-2
+void onRequest(string url,void (*ptrOnRequest)(Request &,Response &));  //Increment-3
 };
 }
 #endif
