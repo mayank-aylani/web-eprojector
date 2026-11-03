@@ -1,8 +1,5 @@
 #include<webearl>
 #include<windows.h>
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
 using namespace webe;
 typedef struct __request
 {
@@ -13,6 +10,40 @@ char *mimeType;
 int dataCount;
 char **data;
 }REQUEST;
+
+void Request::setKeyValue(string k,string v)
+{
+keyValues.insert(pair<string,string>(k,v));
+}
+
+string Request::getValue(string k)
+{
+map<string,string>::iterator iter;
+iter=keyValues.find(k);
+if(iter==keyValues.end()) return string("");
+return iter->second;
+}
+
+string Request::get(string name)
+{
+string val;
+int i,e;
+for(i=0;i<this->dataCount;i++)
+{
+for(e=0;data[i][e]!='\0' && data[i][e]!='=';e++);
+if(data[i][e]!='=') continue;   //back to next cycle of for loop
+if(strncmp(data[i],name.c_str(),e)==0) break;
+}
+if(i==this->dataCount)
+{
+val="";
+}
+else
+{
+val=string(data[i]+(e+1));
+}
+return val;
+}
 
 //Response class constructor
 Response::Response(int clientSocketDescriptor)
@@ -30,18 +61,35 @@ send(clientSocketDescriptor,header,strlen(header),0);
 this->headerCreated=true;
 }
 
+void Response::write(const char *str)
+{
+if(str==NULL) return;
+int len=strlen(str);
+if(len==0) return;
+if(!this->headerCreated) createHeader();
+send(clientSocketDescriptor,str,len,0);
+}
+
+void Response::write(string str)
+{
+write(str.c_str());
+}
+//need to overload more write method for primitive types
+
 //WebProjector class constructor
 WebProjector::WebProjector(int portNumber)
 {
 this->portNumber=portNumber;
+/*
 this->url=NULL;
 this->ptrOnRequest=NULL;
+*/
 }
 
 //destructor
 WebProjector::~WebProjector()
 {
-if(this->url) delete [] this->url;
+//if(this->url) delete [] this->url;
 }
  
 void TMWebProjector::onRequest(string url,void (*ptrOnRequest)(Request &,Response &))

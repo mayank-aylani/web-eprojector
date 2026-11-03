@@ -1,5 +1,6 @@
 #ifndef __WEBEARL__
 #define __WEBEARL__
+#include<map>
 namespace webe
 {
 class Request
@@ -15,7 +16,7 @@ string forwardTo;
 map<string,string> keyValues;
 void setKeyValue(string k,string v);
 string getValue(string k);
-string get(string name);
+string get(string name);     //e.g, request.set("error","invalid data")
 void forward(string forwardTo);
 };
 class Response
@@ -40,10 +41,10 @@ class WebProjector
 {
 private:
 int portNumber;
-char *url;
+//char *url;
 //void (*ptrOnRequest)(void);  //Increment-1
 //void (*ptrOnRequest)(int,char *[]);  //Increment-2
-void (*ptrOnRequest)(Request &,Response &);  //Increment-3
+//void (*ptrOnRequest)(Request &,Response &);  //Increment-3
 map<string,void (*)(Request &,Response &)> requestMappings;
 public:
 WebProjector(int portNumber);
