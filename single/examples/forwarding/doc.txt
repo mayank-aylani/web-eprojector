@@ -1,0 +1,18 @@
+also this can be done
+
+void func1(Request &request,Response &response)
+{
+request.forward("func2");
+}
+void func2(Request &request,Response &response)
+{
+//and this will send HTML
+}
+int main()
+{
+WebProjector server(5050);
+server.onRequest("/f1",func1);
+server.onRequest("/f2",func2);
+server.start();
+return 0;
+}

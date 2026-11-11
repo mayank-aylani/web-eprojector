@@ -1,7 +1,15 @@
+#define byte WindowsByte  //compiler sees byte, it's unsure whether to use std::byte or the typedef byte
+#undef byte
+/*
+windows.h defines byte as unsigned char, while C++17's <cstddef> defines std::byte. When both names become visible through the included headers, the compiler encounters an ambiguous byte reference.
+*/
+#include<windows.h>  //must be included first
 #include<webearl>
-#include<windows.h>
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
 using namespace webe;
-typedef struct __request
+/*typedef struct __request
 {
 char *method;  //get or post
 char *resource;
@@ -10,6 +18,7 @@ char *mimeType;
 int dataCount;
 char **data;
 }REQUEST;
+*/
 
 void Request::setKeyValue(string k,string v)
 {
@@ -22,6 +31,29 @@ map<string,string>::iterator iter;
 iter=keyValues.find(k);
 if(iter==keyValues.end()) return string("");
 return iter->second;
+}
+
+string urlDecode(string str)
+{
+string result;
+for(int i=0;i<str.length();i++)
+{
+if(str[i]=='+')
+{
+result+=' ';
+}
+else if(str[i]=='%' && i+2<str.length())
+{
+char hex[3]={str[i+1],str[i+2],'\0'};
+result+=(char)strtol(hex,NULL,16);
+i+=2;
+}
+else
+{
+result+=str[i];
+}
+}
+return result;
 }
 
 string Request::get(string name)
@@ -40,9 +72,14 @@ val="";
 }
 else
 {
-val=string(data[i]+(e+1));
+val=urlDecode(string(data[i]+(e+1)));
 }
 return val;
+}
+
+void Request::forward(string forwardTo)
+{
+this->forwardTo=forwardTo;
 }
 
 //Response class constructor
@@ -55,8 +92,8 @@ this->headerCreated=false;
 
 void Response::createHeader()
 {
-char header[51];
-strcpy(header,"HTTP/1.1 200 OK\nContent-Type:text/html\n\n");
+char header[61];
+strcpy(header,"HTTP/1.1 200 OK\nContent-Type:text/html\r\nConnection:close\r\n\r\n");
 send(clientSocketDescriptor,header,strlen(header),0);
 this->headerCreated=true;
 }
@@ -76,6 +113,13 @@ write(str.c_str());
 }
 //need to overload more write method for primitive types
 
+void Response::close()
+{
+if(this->isClosed) return;
+closesocket(this->clientSocketDescriptor);
+this->isClosed=true;
+}
+
 //WebProjector class constructor
 WebProjector::WebProjector(int portNumber)
 {
@@ -92,7 +136,7 @@ WebProjector::~WebProjector()
 //if(this->url) delete [] this->url;
 }
  
-void TMWebProjector::onRequest(string url,void (*ptrOnRequest)(Request &,Response &))
+void WebProjector::onRequest(string url,void (*ptrOnRequest)(Request &,Response &))
 {
 if(url.length()==0 || ptrOnRequest==NULL) return;
 requestMappings.insert(pair<string,void (*)(Request &,Response &)>(url,ptrOnRequest));
@@ -139,6 +183,26 @@ if(extensionEquals(resource+lastIndexOfDot+1,"js"))
 mimeType=(char *)malloc(sizeof(char)*16);
 strcpy(mimeType,"text/javascript");
 }
+if(extensionEquals(resource+lastIndexOfDot+1,"jpg"))
+{
+mimeType=(char *)malloc(sizeof(char)*11);
+strcpy(mimeType,"image/jpeg");
+}
+if(extensionEquals(resource+lastIndexOfDot+1,"jpeg"))
+{
+mimeType=(char *)malloc(sizeof(char)*11);
+strcpy(mimeType,"image/jpeg");
+}
+if(extensionEquals(resource+lastIndexOfDot+1,"png"))
+{
+mimeType=(char *)malloc(sizeof(char)*10);
+strcpy(mimeType,"image/png");
+}
+if(extensionEquals(resource+lastIndexOfDot+1,"ico"))
+{
+mimeType=(char *)malloc(sizeof(char)*13);
+strcpy(mimeType,"image/x-icon");
+}
 return mimeType;
 }
 
@@ -150,7 +214,7 @@ if(resource[i]=='\0') return 'N';
 return 'Y';
 }
 
-REQUEST * parseRequest(char *bytes)
+Request * parseRequest(char *bytes)
 {
 char method[11];   //GET,DELETE,POST,...
 char resource[1001];
@@ -158,9 +222,61 @@ int i,j;
 for(i=0;bytes[i]!=' ';i++) method[i]=bytes[i];
 method[i]='\0';
 i+=2;
-for(j=0;bytes[i]!=' ';j++,i++) resource[j]=bytes[i];
+char **data=NULL;
+int dataCount=0;
+if(strcmp(method,"GET")==0)
+{
+//whatever?sdfcds=assdfd&wrwde=fdsa&sfdfsd=sadhjh
+for(j=0;bytes[i]!=' ';j++,i++)
+{
+if(bytes[i]=='?') break;
+resource[j]=bytes[i];
+}
 resource[j]='\0';
-REQUEST *request=(REQUEST *)malloc(sizeof(REQUEST));
+if(bytes[i]=='?')
+{
+i++;
+int si=i;  //starting index
+dataCount=0;
+while(bytes[i]!=' ')
+{
+if(bytes[i]=='&') dataCount++;
+i++;
+}
+dataCount++;
+data=(char **)malloc(sizeof(char *)*dataCount);
+int *pc=(int *)malloc(sizeof(int)*dataCount);
+i=si;
+int j=0;
+while(bytes[i]!=' ')
+{
+if(bytes[i]=='&')
+{
+pc[j]=i;
+j++;
+}
+i++;
+}
+pc[j]=i;
+i=si;
+j=0;
+int howManyToPick;
+while(j<dataCount)
+{
+howManyToPick=pc[j]-i;
+data[j]=(char *)malloc(sizeof(char)*(howManyToPick+1));
+strncpy(data[j],bytes+i,howManyToPick);
+data[j][howManyToPick]='\0';
+i=pc[j]+1;
+j++;
+}
+}
+}//method is of GET Type 
+printf("Request arrived for %s\n",resource);
+//Request *request=(Request *)malloc(sizeof(Request));
+Request *request=new Request;
+request->dataCount=dataCount;
+request->data=data;
 request->method=(char *)malloc((sizeof(char)*strlen(method))+1);
 strcpy(request->method,method);
 if(resource[0]=='\0')
@@ -169,9 +285,9 @@ request->resource=NULL;
 request->isClientSideTechnologyResource='Y';
 request->mimeType=NULL;
 }
-else
+else 
 {
-request->resource=(char *)malloc((sizeof(char)*strlen(resource))+1);
+request->resource=(char *)malloc(sizeof(char)*(strlen(resource)+1));
 strcpy(request->resource,resource);
 request->isClientSideTechnologyResource=isClientSideResource(resource);
 request->mimeType=getMIMEType(resource);
@@ -352,6 +468,7 @@ request->isClientSideTechnologyResource=isClientSideResource(request->resource);
 request->mimeType=getMIMEType(request->resource);
 continue;
 }
+response.close();
 if(request->data!=NULL)
 {
 for(int k=0;k<request->dataCount;k++) free(request->data[k]);

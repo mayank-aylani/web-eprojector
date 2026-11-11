@@ -1,0 +1,63 @@
+
+body {
+font-family: Arial;
+margin: 25px;
+color: black;
+}
+
+.stickman {
+position: relative;
+width: 100px;
+height: 150px;
+margin: 20px;
+}
+
+#head {
+position: absolute;
+width: 30px;
+height: 30px;
+border: 4px solid black;
+border-radius: 50%;
+left: 31px;
+top: 0;
+}
+
+#body {
+position: absolute;
+width: 4px;
+height: 55px;
+background: black;
+left: 47px;
+top: 38px;
+}
+
+#arms {
+position: absolute;
+width: 65px;
+height: 4px;
+background: black;
+left: 17px;
+top: 55px;
+}
+
+#left-leg, #right-leg {
+position: absolute;
+width: 4px;
+height: 48px;
+background: black;
+top: 90px;
+}
+
+#left-leg {
+left: 35px;
+transform: rotate(30deg);
+}
+
+#right-leg {
+left: 63px;
+transform: rotate(-30deg);
+}
+
+a {
+color: blue;
+}

@@ -1,6 +1,8 @@
 #ifndef __WEBEARL__
 #define __WEBEARL__
+#include<iostream>
 #include<map>
+using namespace std;
 namespace webe
 {
 class Request

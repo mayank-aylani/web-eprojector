@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Web Projector</title>
+</head>
+<body>
+<b>City Information</b>
+<form method='GET' action='getCity'>
+Select city
+<select name='cityCode'>
+<option value='-1'>select a city</option>
+<option value='1'>Ujjain</option>
+<option value='2'>Indore</option>
+<option value='3'>Mumbai</option>
+<option value='4'>Bangalore</option> 
+</select><br>
+<button type='submit'>Get info</button>
+</form>
+<b>Enquiry</b>
+<form method='GET' action='enquiry'>
+Name
+<input type='text' name='name'>
+Address
+<textarea name='address'></textarea>
+City
+<input type='text' name='city'>
+Your query
+<textarea name='message'></textarea>
+<button type='submit'>Add Enquiry</button>
+</form>
+</body>
+</html>
