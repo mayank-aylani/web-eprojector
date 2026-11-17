@@ -35,6 +35,9 @@
 
 https://github.com/user-attachments/assets/3d8d909c-6b09-45aa-bfa1-7e489c0836aa
 
+[![YouTube Demonstration](https://img.shields.io/badge/YouTube-Full_Demonstration-FF0000?style=flat&logo=youtube&logoColor=white)](https://youtu.be/goCpFjn7cFg?si=hYMZKOQlXfSxPs7m)
+[![Project Documentation](https://img.shields.io/badge/Google_Drive-Project_Documentation-4285F4?style=flat&logo=googledrive&logoColor=white)]([https://drive.google.com/file/d/17aw3mBMUyqxeWiwQrcKB0Uq0Bjf4Mcgz/view?usp=sharing](https://drive.google.com/file/d/1nmFyLAyxust-4KdypXpuPJqAlxopfikf/view?usp=sharing))
+
 ---
 
 ## `HOW IT WORKS`
