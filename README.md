@@ -1,5 +1,5 @@
 
-# `WebProjector`
+# `web-eprojector`
 
 `A C++ HTTP Web Server Built From Scratch Using Socket Programming`
 
